@@ -1,0 +1,55 @@
+      INTEGER MAXNUM, N, L1, L2
+      PARAMETER (MAXNUM = 50)
+      INTEGER NUMWK(MAXNUM), NUMDAY(MAXNUM), NCASES(MAXNUM)
+C CALL SUBROUTINE TO READ THE DATA
+      CALL RDATA(NUMWK, NUMDAY, NCASES, MAXNUM)
+C READ RECORDS AND SEARCH ARRAYS
+      READ (UNIT = 15, FMT = 100, IOSTAT = EOF)
+     +      L1, L2
+      IF (L1 .NE. -99 .AND. L2 .NE. -99) THEN
+         CALL RFIND
+      ENDIF
+      END
+
+      SUBROUTINE RFIND(L1, L2, NUMWK, NUMDAY, NCASES, N)
+      INTEGER K, N, MAXNUM, EOF, L1, L2
+      INTEGER NUMWK(*), NUMDAY(*), NCASES(*)
+      K = 1
+30    IF (K .NE. N)
+         IF (NUMWK(K) .EQ. L1 .AND NUMDAY(K) .EQ. L2) THEN
+            PRINT *, 'WEEK', NUMWK(K), ' DAY ', NUMDAY(K), ' CASE= ', NCASES(K)
+            K = N
+         ENDIF
+       K = K + 1
+       GOTO 30
+       ENDIF
+
+
+      SUBROUTINE RDATA(NUMWK, NUMDAY, NCASES, MAXNUM)
+
+      INTEGER N, MAXNUM, NTEMP1, NTEMP2, NTEMP3, EOF
+      INTEGER NUMWK(*), NUMDAY(*), NCASES(*)
+      CHARACTER*20 FNAME
+
+      PRINT *, 'ENTER NAME OF FILE'
+      READ '(A)', FNAME
+      OPEN (UNIT = 15, FILE = FNAME, STATUS = 'OLD')
+      N = 1
+      READ (UNIT = 15, FMT = 100, IOSTAT = EOF)
+     +      NUMWK(N), NUMDAY(N), NCASES(N)
+100   FORMAT(3I6)
+10    IF (EOF .GE. 0 .AND. N .LT. MAXNUM) THEN
+         N = N + 1
+         READ (UNIT = 15, FMT = 100, IOSTAT = EOF)
+     +         NTEMP1, NTEMP2, NTEMP3
+C SET CONDITION TO BREAK OUT WHEN SENTINEL REACHED
+         IF (NTEMP1 .NE. -99 .AND. NTEMP2 .NE. -99) THEN
+            NUMWK(N) = NTEMP1
+            NUMDAY(N) = NTEMP2
+            NCASES(N) = NTEMP3
+            GO TO 10
+         ENDIF
+      ELSE
+         N = N - 1
+      ENDIF
+      END
